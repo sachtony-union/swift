@@ -214,6 +214,16 @@ func voidAndErrorCompletion(completion: @escaping (Void?, Error?) -> Void) {
     completion(nil, CustomError.Bad)
   }
 }
+// VOID-AND-ERROR-HANDLER:      {
+// VOID-AND-ERROR-HANDLER-NEXT:   Task {
+// VOID-AND-ERROR-HANDLER-NEXT:     do {
+// VOID-AND-ERROR-HANDLER-NEXT:       try await voidAndErrorCompletion()
+// VOID-AND-ERROR-HANDLER-NEXT:       completion((), nil)
+// VOID-AND-ERROR-HANDLER-NEXT:     } catch {
+// VOID-AND-ERROR-HANDLER-NEXT:       completion(nil, error)
+// VOID-AND-ERROR-HANDLER-NEXT:     }
+// VOID-AND-ERROR-HANDLER-NEXT:   }
+// VOID-AND-ERROR-HANDLER-NEXT: }
 // VOID-AND-ERROR-HANDLER:      func voidAndErrorCompletion() async throws {
 // VOID-AND-ERROR-HANDLER-NEXT:   if .random() {
 // VOID-AND-ERROR-HANDLER-NEXT:     return // Make sure we drop the ()
@@ -230,6 +240,16 @@ func tooMuchVoidAndErrorCompletion(completion: @escaping (Void?, Void?, Error?) 
     completion(nil, nil, CustomError.Bad)
   }
 }
+// TOO-MUCH-VOID-AND-ERROR-HANDLER:      {
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:   Task {
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:     do {
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:       try await tooMuchVoidAndErrorCompletion()
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:       completion((), (), nil)
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:     } catch {
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:       completion(nil, nil, error)
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:     }
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:   }
+// TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT: }
 // TOO-MUCH-VOID-AND-ERROR-HANDLER:      func tooMuchVoidAndErrorCompletion() async throws {
 // TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:   if .random() {
 // TOO-MUCH-VOID-AND-ERROR-HANDLER-NEXT:     return // Make sure we drop the ()s
@@ -246,6 +266,16 @@ func voidResultCompletion(completion: @escaping (Result<Void, Error>) -> Void) {
     completion(.failure(CustomError.Bad))
   }
 }
+// VOID-RESULT-HANDLER:      {
+// VOID-RESULT-HANDLER-NEXT:   Task {
+// VOID-RESULT-HANDLER-NEXT:     do {
+// VOID-RESULT-HANDLER-NEXT:       try await voidResultCompletion()
+// VOID-RESULT-HANDLER-NEXT:       completion(.success(()))
+// VOID-RESULT-HANDLER-NEXT:     } catch {
+// VOID-RESULT-HANDLER-NEXT:       completion(.failure(error))
+// VOID-RESULT-HANDLER-NEXT:     }
+// VOID-RESULT-HANDLER-NEXT:   }
+// VOID-RESULT-HANDLER-NEXT: }
 // VOID-RESULT-HANDLER:      func voidResultCompletion() async throws {
 // VOID-RESULT-HANDLER-NEXT:   if .random() {
 // VOID-RESULT-HANDLER-NEXT:     return // Make sure we drop the .success(())
@@ -273,7 +303,7 @@ func testReturnHandling(_ completion: @escaping (String?, Error?) -> Void) {
 // RUN: %refactor -add-async-alternative -dump-text -source-filename %s -pos=%(line+1):1 | %FileCheck -check-prefix=RETURN-HANDLING2 %s
 func testReturnHandling2(completion: @escaping (String) -> ()) {
   testReturnHandling { x, err in
-    guard let x = x else {
+    guard let _ = x else {
       let a = ""
       return completion(a)
     }
